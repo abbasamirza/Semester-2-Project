@@ -2,12 +2,18 @@
 #include <conio.h>
 using namespace std;
 
+#define LOGIN 1
+#define SIGNUP 2
+#define EXIT 0
+
+#define ENTER 13
+#define BACKSPACE 8
 
 /* CLASS DEFINITIONS START HERE */
 class User
 {
     protected:
-        string name, NIC, password, dateofbirth;
+        string name, NIC, password;
 
     public:
 
@@ -16,22 +22,22 @@ class User
 
 
 /* FUNCTION PROTOTYPES START HERE */
-void get_loginOrSignup(int*);
-string get_NIC();
+int get_loginOrSignup(void);
+string get_NIC(void);
 /* FUNCTION PROTOTYPES END HERE */
 
 
 /* MAIN FUNCTION STARTS HERE */
-int main()
+int main(void)
 {
     /* Variable Declerations */
-    string nic;
+    string inputNIC;
     int entry;
 
-    get_loginOrSignup(&entry);
-    if (entry == 1)
+    entry = get_loginOrSignup();
+    if (entry == LOGIN)
     {
-        nic = get_NIC();
+        inputNIC = get_NIC();
     }
 
     return 0;
@@ -40,36 +46,68 @@ int main()
 
 
 /* FUNCTION DEFINITIONS START HERE */
-void get_loginOrSignup(int* entry)
+int get_loginOrSignup(void)
 {
-    cout << "1. Login\n"
-        << "2. Signup\n\n"
-        << "Enter the number of the action that you want to perform" << endl;
-    cin >> *entry;
-
-    while (*entry != 1 && *entry != 2)
+	int entry;
+	
+    cout << "Enter the number of the action that you want to perform\n\n" 
+		<< "1. Login\n"
+        << "2. Signup\n"
+        << "0. Exit\n" << endl;
+    cin >> entry;
+	cout << endl;
+	
+    while (entry != LOGIN && entry != SIGNUP && entry != EXIT)
     {
         cout << "Invalid option, please re-enter\n";
-        cin >> *entry;
+        cin >> entry;
     }
+    
+    return entry;
 }
 
-string get_NIC()
+string get_NIC(void)
 {
     char nic[16];
-    int i;
+    int i = 0;
 
     cout << "Enter your NIC number\n";
     while (1)
     {
         nic[i] = _getch();
         
-        if (nic[i] == 13)
+        if (nic[i] == ENTER)
         {
-            break;
+        	if (i == 13)
+        	{
+        		nic[i] = '\0';
+        		break;
+			}
+			
+			else if (i == 0)
+			{
+				break;
+			}
+			
+			else
+			{
+				cout << "\nInvalid NIC number please re-enter\n";
+				i = 0;
+			}
         }
+        
+        else if (nic[i] == BACKSPACE && i > 0)
+        {
+        	--i;
+        	cout << "\b \b";
+		}
+		
+		else if (nic[i] >= '0' && nic[i] <= '9' && i != 13)
+		{
+			cout << nic[i++] << " \b";
+		}
     }
 
-    return "1";
+    return nic;
 }
 /* FUNCTION DEFINITIONS END HERE */
