@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <conio.h>
 using namespace std;
 
@@ -16,7 +18,7 @@ class User
         string name, NIC, password;
 
     public:
-
+        friend bool check_NIC(string);
 };
 /* CLASS DEFINITIONS END HERE */
 
@@ -24,6 +26,9 @@ class User
 /* FUNCTION PROTOTYPES START HERE */
 int get_loginOrSignup(void);
 string get_NIC(void);
+string get_name(void);
+string get_pass(void);
+bool check_NIC(string);
 /* FUNCTION PROTOTYPES END HERE */
 
 
@@ -31,13 +36,25 @@ string get_NIC(void);
 int main(void)
 {
     /* Variable Declerations */
-    string inputNIC;
+    string inputNIC, inputName, inputPass;
     int entry;
+    ofstream out;
+
+    /* Create File If It Does Not Exist */
+    out.open("Users.txt", ios::app);
 
     entry = get_loginOrSignup();
     if (entry == LOGIN)
     {
         inputNIC = get_NIC();
+        check_NIC(inputNIC);
+    }
+
+    else if (entry == SIGNUP)
+    {
+        inputNIC = get_NIC();
+        inputName = get_name();
+        inputPass = get_pass();
     }
 
     return 0;
@@ -71,8 +88,8 @@ string get_NIC(void)
     char nic[16];
     int i = 0;
 
-    cout << "Enter your NIC number\n";
-    while (1)
+    cout << "Enter NIC number\n";
+    while (true)
     {
         nic[i] = _getch();
         
@@ -109,5 +126,52 @@ string get_NIC(void)
     }
 
     return nic;
+}
+
+string inputName(void)
+{
+    string name;
+
+    cout << "Enter Name: ";
+    getline(cin >> ws, name);
+
+    return name;
+}
+
+string inputPass(void)
+{
+    string pass;
+    int i = 0;
+
+    cout << "Enter Password: ";
+    while (true)
+    {
+        pass[i] = _getch();
+
+        if (pass[i] == ENTER)
+        {
+            pass[i] = '\0';
+            break;
+        }
+
+        else if (pass[i] == BACKSPACE && i > 0)
+        {
+            --i;
+            cout << "\b \b";
+        }
+
+        else
+        {
+            ++i;
+            cout << "* \b";
+        }
+    }
+}
+
+bool check_NIC(string inputNIC)
+{
+    User* user;
+
+    
 }
 /* FUNCTION DEFINITIONS END HERE */
