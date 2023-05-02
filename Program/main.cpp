@@ -94,6 +94,8 @@ long long int check_NIC(string);
 bool check_pass(string, int);
 User create_user(string, string, string);
 void generate_random();
+string get_randomPass();
+bool confirm_generatedPass(string);
 /* FUNCTION PROTOTYPES END HERE */
 
 /* MAIN FUNCTION STARTS HERE */
@@ -227,17 +229,22 @@ int main()
                 inputPass = get_pass();
                 cout << endl << endl;
                 inputType = get_type();
+                wrongPassCount = 3;
 
                 if (inputType == 'Y' || inputType == 'y')
                 {
+                    string temp;
+                    
                     cout << endl << endl;
                     generate_random();
-                    wrongPassCount = 3;
 
                     while (wrongPassCount >= 0)
                     {
-                        if (confirm_generatedPass())
+                        temp = get_randomPass();
+
+                        if (confirm_generatedPass(temp))
                         {
+                            cout << endl << endl;
                             console.display_randomPassSuccess();
                             break;
                         }
@@ -248,18 +255,19 @@ int main()
 
                             if (wrongPassCount == 0)
                             {
-                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered is incorrect, no more tries left\n";
+                                cout << "\n\n\t\t\t\t\t\t\t\t\tToo many incorrect attempts, exiting program\n";
+                                --wrongPassCount;
                                 break;
                             }
 
                             else if (wrongPassCount > 1)
                             {
-                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered is incorrect, you have " << wrongPassCount-- << " tries left\n";
+                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered does not match the random generated password, you have " << wrongPassCount-- << " tries left\n";
                             }
 
                             else
                             {
-                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered is incorrect, you have " << wrongPassCount-- << " try left\n";
+                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered does not match the random generated password, you have " << wrongPassCount-- << " try left\n";
                             }
 
                             SetConsoleTextAttribute(console.outScreen, console.defaultColor);
@@ -267,8 +275,11 @@ int main()
                     }
                 }
 
-                console.display_defaultMessages();
-                User user = create_user(inputName, inputNIC, inputPass);
+                if (wrongPassCount != -1)
+                {
+                    console.display_defaultMessages();
+                    User user = create_user(inputName, inputNIC, inputPass);
+                }
             }
 
             else
@@ -437,6 +448,7 @@ void OutputScreen::display_randomPassSuccess()
     }
 
     SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+    Sleep(1000);
 }
 
 int get_loginOrSignup()
@@ -644,6 +656,8 @@ char get_type()
         cin >> type;
     }
 
+    SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+
     return type;
 }
 
@@ -771,5 +785,40 @@ void generate_random()
 
     out << generatedString;
     out.close();
+}
+
+string get_randomPass()
+{
+    string temp;
+
+    cout << "\t\t\t\t\t\t\t\t\tEnter The Random Generated Password\n" // 9
+        << "\t\t\t\t\t\t\t\t     -> ";
+    SetConsoleTextAttribute(console.outScreen, FOREGROUND_INTENSITY);
+    getline(cin >> ws, temp);
+    SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+
+    return temp;
+}
+
+bool confirm_generatedPass(string temp)
+{
+    ifstream in("Admin Random.txt");
+
+    if (!in)
+    {
+        cout << "\nFile not opened\n";
+        exit(3);
+    }
+
+    string checkString;
+
+    getline(in, checkString);
+
+    if (temp == checkString)
+    {
+        return true;
+    }
+
+    return false;
 }
 /* FUNCTION DEFINITIONS END HERE */
