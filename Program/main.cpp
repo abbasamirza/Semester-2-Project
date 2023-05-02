@@ -38,6 +38,7 @@ class OutputScreen
         void display_spaces(int);
         void display_defaultMessages();
         void display_loginSuccess();
+        void display_randomPassSuccess();
 } console;
 
 class User
@@ -88,9 +89,13 @@ int get_loginOrSignup();
 string get_NIC();
 string get_name();
 string get_pass();
+char get_type();
 long long int check_NIC(string);
 bool check_pass(string, int);
 User create_user(string, string, string);
+void generate_random();
+string get_randomPass();
+bool confirm_generatedPass(string);
 /* FUNCTION PROTOTYPES END HERE */
 
 /* MAIN FUNCTION STARTS HERE */
@@ -98,6 +103,7 @@ int main()
 {
     /* Variable Declerations */
     string inputNIC, inputName, inputPass;
+    char inputType;
     int entry, wrongPassCount;
     long long int index;
     ofstream out;
@@ -221,8 +227,59 @@ int main()
                 inputName = get_name();
                 cout << endl << endl;
                 inputPass = get_pass();
-                console.display_defaultMessages();
-                User user = create_user(inputName, inputNIC, inputPass);
+                cout << endl << endl;
+                inputType = get_type();
+                wrongPassCount = 3;
+
+                if (inputType == 'Y' || inputType == 'y')
+                {
+                    string temp;
+                    
+                    cout << endl << endl;
+                    generate_random();
+
+                    while (wrongPassCount >= 0)
+                    {
+                        temp = get_randomPass();
+
+                        if (confirm_generatedPass(temp))
+                        {
+                            cout << endl << endl;
+                            console.display_randomPassSuccess();
+                            break;
+                        }
+
+                        else
+                        {
+                            SetConsoleTextAttribute(console.outScreen, FOREGROUND_RED);
+
+                            if (wrongPassCount == 0)
+                            {
+                                cout << "\n\n\t\t\t\t\t\t\t\t\tToo many incorrect attempts, exiting program\n";
+                                --wrongPassCount;
+                                break;
+                            }
+
+                            else if (wrongPassCount > 1)
+                            {
+                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered does not match the random generated password, you have " << wrongPassCount-- << " tries left\n";
+                            }
+
+                            else
+                            {
+                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered does not match the random generated password, you have " << wrongPassCount-- << " try left\n";
+                            }
+
+                            SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+                        }
+                    }
+                }
+
+                if (wrongPassCount != -1)
+                {
+                    console.display_defaultMessages();
+                    User user = create_user(inputName, inputNIC, inputPass);
+                }
             }
 
             else
@@ -375,6 +432,23 @@ void OutputScreen::display_loginSuccess()
     }
 
     SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+}
+
+void OutputScreen::display_randomPassSuccess()
+{
+    string success = "Random Password Matched!";
+
+    SetConsoleTextAttribute(console.outScreen, FOREGROUND_GREEN);
+    cout << "\t\t\t\t\t\t\t\t\t      "; // 9
+
+    for (int i = 0; i < success.length(); i++)
+    {
+        Sleep(40);
+        cout << success[i];
+    }
+
+    SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+    Sleep(1000);
 }
 
 int get_loginOrSignup()
@@ -562,6 +636,31 @@ string get_pass()
     return pass;
 }
 
+char get_type()
+{
+    char type;
+
+    cout << "\t\t\t\t\t\t\t\t\tAre you an Admin?[Y/N]\n" // 9
+        << "\t\t\t\t\t\t\t\t     -> ";
+    SetConsoleTextAttribute(console.outScreen, FOREGROUND_INTENSITY);
+    cin >> type;
+    cout << endl;
+
+    while (type != 'Y' && type != 'y' && type != 'N' && type != 'n')
+    {
+        SetConsoleTextAttribute(console.outScreen, FOREGROUND_RED);
+        cout << "\t\t\t\t\t\t\t\tInvalid option, please re-enter\n"; // 8
+        SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+        cout << "\t\t\t\t\t\t\t\t-> ";
+        SetConsoleTextAttribute(console.outScreen, FOREGROUND_INTENSITY);
+        cin >> type;
+    }
+
+    SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+
+    return type;
+}
+
 long long int check_NIC(string inputNIC)
 {
     ifstream in("Users.txt");
@@ -661,5 +760,65 @@ User create_user(string inputName, string inputNIC, string inputPass)
     SetConsoleTextAttribute(console.outScreen, console.defaultColor);
     
     return user;
+}
+
+void generate_random()
+{
+    ofstream out("Admin Random.txt");
+    
+    if (!out)
+    {
+        cout << "\nFile not opened\n";
+        exit(112);
+    }
+
+    const char alphanum[] = "012345689ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    string generatedString;
+
+    generatedString.reserve(13);
+
+    srand((unsigned)time(NULL) * getpid());
+    for (int i = 0; i < 13; i++)
+    {
+        generatedString += alphanum[rand() & (sizeof(alphanum) - 1)];
+    }
+
+    out << generatedString;
+    out.close();
+}
+
+string get_randomPass()
+{
+    string temp;
+
+    cout << "\t\t\t\t\t\t\t\t\tEnter The Random Generated Password\n" // 9
+        << "\t\t\t\t\t\t\t\t     -> ";
+    SetConsoleTextAttribute(console.outScreen, FOREGROUND_INTENSITY);
+    getline(cin >> ws, temp);
+    SetConsoleTextAttribute(console.outScreen, console.defaultColor);
+
+    return temp;
+}
+
+bool confirm_generatedPass(string temp)
+{
+    ifstream in("Admin Random.txt");
+
+    if (!in)
+    {
+        cout << "\nFile not opened\n";
+        exit(3);
+    }
+
+    string checkString;
+
+    getline(in, checkString);
+
+    if (temp == checkString)
+    {
+        return true;
+    }
+
+    return false;
 }
 /* FUNCTION DEFINITIONS END HERE */
