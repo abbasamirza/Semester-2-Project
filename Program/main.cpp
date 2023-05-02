@@ -138,7 +138,7 @@ int main()
 
                         if (wrongPassCount == 0)
                         {
-                            cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered is incorrect, no more tries left\n";
+                            cout << "\n\n\t\t\t\t\t\t\t\t\tToo many incorrect attempts, exiting program\n";
                             break;
                         }
 
@@ -271,7 +271,7 @@ int main()
 
                             if (wrongPassCount == 0)
                             {
-                                cout << "\n\n\t\t\t\t\t\t\t\t\tThe password you entered is incorrect, no more tries left\n";
+                                cout << "\n\n\t\t\t\t\t\t\t\t\tToo many incorrect attempts, exiting program\n";
                                 break;
                             }
 
